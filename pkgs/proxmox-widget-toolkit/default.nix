@@ -37,6 +37,8 @@ stdenv.mkDerivation rec {
 
   postInstall = ''
     cp api-viewer/APIViewer.js $out/share/javascript/proxmox-widget-toolkit
+    sed -i "s/data.status.toLowerCase() !== 'active'/false/g" \
+      "$out/share/javascript/proxmox-widget-toolkit/proxmoxlib.js"
   '';
 
   passthru.updateScript = pve-update-script { };
