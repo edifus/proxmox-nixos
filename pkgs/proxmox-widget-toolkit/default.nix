@@ -37,7 +37,7 @@ stdenv.mkDerivation rec {
 
   postInstall = ''
     cp api-viewer/APIViewer.js $out/share/javascript/proxmox-widget-toolkit
-    sed -i "s/data.status.toLowerCase() !== 'active'/false/g" \
+    sed -Ezi "s/(Ext.Msg.show\(\{\s+title: gettext\('No valid sub)/void\(\{ \/\/\1/g" \
       "$out/share/javascript/proxmox-widget-toolkit/proxmoxlib.js"
   '';
 
