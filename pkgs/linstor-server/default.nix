@@ -21,7 +21,6 @@
   systemdMinimal,
   thin-provisioning-tools,
   util-linux,
-  zfs,
   writeScript,
 }:
 
@@ -81,6 +80,7 @@ let
       mkdir -p $out/lib/conf
       cp -r build/install/linstor-server/lib/* $out/lib/
       cp server/logback.xml $out/lib/conf/
+      # zfs/zpool resolved via /run/booted-system to match the loaded kmod.
       makeWrapper ${jre}/bin/java $out/bin/linstor-controller \
         --add-flags "-Xms32M -classpath $out/lib/conf:$out/lib/* com.linbit.linstor.core.Controller" \
         --prefix PATH : ${
@@ -98,9 +98,9 @@ let
             systemdMinimal
             thin-provisioning-tools
             util-linux
-            zfs
           ]
-        }
+        } \
+        --suffix PATH : /run/booted-system/sw/bin
 
       makeWrapper ${jre}/bin/java $out/bin/linstor-satellite \
         --add-flags "-Xms32M -classpath $out/lib/conf:$out/lib/* com.linbit.linstor.core.Satellite" \
@@ -119,9 +119,9 @@ let
             systemdMinimal
             thin-provisioning-tools
             util-linux
-            zfs
           ]
-        }
+        } \
+        --suffix PATH : /run/booted-system/sw/bin
     '';
 
     passthru.updateScript = writeScript "update-linstor-server" ''

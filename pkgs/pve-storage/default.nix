@@ -26,7 +26,6 @@
   smartmontools,
   targetcli-fb,
   util-linux,
-  zfs,
   posixstrptime,
   pve-update-script,
 }:
@@ -84,6 +83,7 @@ perl540.pkgs.toPerlModule (
       cp -rs ${linstor-proxmox}/lib $out
     '';
 
+    # zfs/zpool resolved via /run/booted-system to match the loaded kmod.
     postFixup = ''
       find $out -type f | xargs sed -i \
         -e "s|/bin/lsblk|${util-linux}/bin/lsblk|" \
@@ -99,8 +99,8 @@ perl540.pkgs.toPerlModule (
         -e "s|/sbin/sgdisk|${gptfdisk}/bin/sgdisk|" \
         -e "s|/sbin/showmount|${nfs-utils}/bin/showmount|" \
         -e "s|/sbin/vg|${lvm2.bin}/bin/vg|" \
-        -e "s|/sbin/zfs|${zfs}/bin/zfs|" \
-        -e "s|/sbin/zpool|${zfs}/bin/zpool|" \
+        -e "s|/sbin/zfs|/run/booted-system/sw/bin/zfs|" \
+        -e "s|/sbin/zpool|/run/booted-system/sw/bin/zpool|" \
         -e "s|/usr/bin/chattr|${e2fsprogs}/bin/chattr|" \
         -e "s|/usr/bin/cstream||" \
         -e "s|/usr/bin/file|${file}/bin/file|" \

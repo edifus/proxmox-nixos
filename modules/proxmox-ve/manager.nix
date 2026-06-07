@@ -23,11 +23,10 @@ lib.mkIf cfg.enable {
       ];
       path = with pkgs; [
         btrfs-progs
-        zfs
         bashInteractive
         cdrkit
         swtpm
-      ];
+      ] ++ [ config.boot.zfs.package ];
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/pvedaemon start";
         ExecStop = "${cfg.package}/bin/pvedaemon stop";
@@ -135,9 +134,9 @@ lib.mkIf cfg.enable {
         "pve-guests.service"
         "pve-storage.target"
       ];
-      path = with pkgs; [
-        btrfs-progs
-        zfs
+      path = [
+        pkgs.btrfs-progs
+        config.boot.zfs.package
       ];
       serviceConfig = {
         ExecStartPre = [
@@ -157,9 +156,9 @@ lib.mkIf cfg.enable {
       description = "PVE Status Daemon";
       wants = [ "pve-cluster.service" ];
       after = [ "pve-cluster.service" ];
-      path = with pkgs; [
-        btrfs-progs
-        zfs
+      path = [
+        pkgs.btrfs-progs
+        config.boot.zfs.package
       ];
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/pvestatd start";
