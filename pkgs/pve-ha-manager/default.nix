@@ -3,6 +3,7 @@
   stdenv,
   fetchgit,
   makeWrapper,
+  iproute2,
   perl5,
   pve-container,
   pve-firewall,
@@ -15,14 +16,16 @@
 }:
 
 let
+  pve-storage_ = pve-storage.override { inherit enableLinstor; };
   perlDeps = [
     pve-container
     pve-firewall
     pve-guest-common
-    pve-qemu-server
-    (pve-storage.override { inherit enableLinstor; })
+    (pve-qemu-server.override { pve-storage = pve-storage_; })
+    pve-storage_
   ];
   perlEnv = perl5.withPackages (_: perlDeps);
+  perlLibPath = lib.makeSearchPath "${perl5.libPrefix}/${perl5.version}" perlDeps;
 in
 
 perl5.pkgs.toPerlModule (
@@ -71,9 +74,12 @@ perl5.pkgs.toPerlModule (
     postFixup = ''
       for bin in $out/bin/*; do
         wrapProgram $bin \
-          --prefix PATH : ${lib.makeBinPath [ pve-qemu ]} \
-          --prefix PERL5LIB : $out/${perl5.libPrefix}/${perl5.version}
-      done      
+          --prefix PATH : "$out/bin:${lib.makeBinPath [
+            pve-qemu
+            iproute2
+          ]}" \
+          --prefix PERL5LIB : $out/${perl5.libPrefix}/${perl5.version}:${perlLibPath}
+      done
     '';
 
     passthru.updateScript = pve-update-script { };
